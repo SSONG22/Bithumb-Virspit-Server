@@ -1,6 +1,6 @@
 package com.virspit.virspitservice.domain.product.service;
 
-import com.virspit.virspitservice.domain.advertisement.common.PageSupport;
+import com.virspit.virspitservice.domain.common.PageSupport;
 import com.virspit.virspitservice.domain.product.dto.ProductDto;
 import com.virspit.virspitservice.domain.product.dto.ProductKafkaDto;
 import com.virspit.virspitservice.domain.product.entity.ProductDoc;

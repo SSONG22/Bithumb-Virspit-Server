@@ -7,6 +7,8 @@ services:
     environment:
       - MONGO_DATA_DIR=/data/db
       - MONGO_LOG_DIR=/dev/null
+    ports:
+      - 27017:27017
 
     volumes:
       - ./data/db:/data/db
@@ -19,7 +21,5 @@ services:
     build: .
     depends_on:
       - mongo
-#    links:
-#      - mongodb
-#    volumes:
-#      - ./config/listing.yml:/app/application.yml
+    volumes:
+      - ./config/listing.yml:/app/application.yml

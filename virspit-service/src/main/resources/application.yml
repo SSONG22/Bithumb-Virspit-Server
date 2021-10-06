@@ -1,14 +1,12 @@
 server:
   port: 8080
 spring:
-
   application:
     name: virspit-listing
   data:
     mongodb:
-      uri: mongodb://localhost:27017/listing # local
-#        uri: mongodb://mongo:27017/listing # docker app
-
+#      uri: mongodb://localhost:27017/listing # local
+        uri: mongodb://mongo:27017/listing # docker app
   kafka:
     consumer:
       bootstrap-servers: 3.34.250.136:9092
@@ -18,8 +16,6 @@ spring:
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
 
 kafka-topic: product
-
-
 
 eureka:
   instance:
@@ -31,9 +27,3 @@ eureka:
     fetch-registry: true
     service-url:
       defaultZone: http://3.38.44.130:8761/eureka
-
-
-
-
-
-

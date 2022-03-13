@@ -1,18 +1,20 @@
 package com.virspit.virspitservice.domain.product.repository;
 
+import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.Predicate;
 import com.virspit.virspitservice.domain.product.entity.ProductDoc;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Range;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
+import org.springframework.data.querydsl.ReactiveQuerydslPredicateExecutor;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
-
 @Repository
-public interface ProductDocRepository extends ReactiveMongoRepository<ProductDoc, String> {
+public interface ProductDocRepository extends ReactiveMongoRepository<ProductDoc, String>, ReactiveQuerydslPredicateExecutor<ProductDoc> {
+
     Mono<ProductDoc> findByTitle(String title);
 
     @Query("{ id: { $exists: true }}")
@@ -34,4 +36,5 @@ public interface ProductDocRepository extends ReactiveMongoRepository<ProductDoc
 
     Flux<ProductDoc> findBySportsIdOrderByCreatedDateTimeDesc(Long sportsId);
 
+    Flux<ProductDoc> findAll(Predicate sportsType, Predicate sportsId, OrderSpecifier orderSpecifier);
 }

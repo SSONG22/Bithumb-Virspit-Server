@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @EqualsAndHashCode(of = "id")
 @Builder
@@ -62,4 +63,33 @@ public class ProductKafkaDto {
     @ApiModelProperty(value = "product 이벤트", example = "DELETE or UPDATE")
     private Event event;
 
+    public ProductDoc kafkaToEntity(final ProductKafkaDto productDto) {
+        return ProductDoc.builder()
+                .id(productDto.getId())
+                .title(productDto.getTitle())
+                .description(productDto.getDescription())
+                .price(productDto.getPrice())
+                .remainedCount(productDto.getRemainedCount())
+                .startDateTime(productDto.getStartDateTime())
+                .exhibition(productDto.getExhibition())
+                .nftImageUrl(productDto.getNftImageUrl())
+                .detailImageUrl(productDto.getDetailImageUrl())
+                .metadataUri(Optional.ofNullable(productDto.getNftInfo())
+                        .map(NftInfo::getMetadataUri).orElse(null))
+                .contractAlias(Optional.ofNullable(productDto.getNftInfo())
+                        .map(NftInfo::getContractAlias).orElse(null))
+                .teamPlayerId(Optional.ofNullable(productDto.getTeamPlayerInfo())
+                        .map(TeamPlayerInfo::getId).orElse(null))
+                .teamPlayerName(Optional.ofNullable(productDto.getTeamPlayerInfo())
+                        .map(TeamPlayerInfo::getName).orElse(null))
+                .teamPlayerType(Optional.ofNullable(productDto.getTeamPlayerInfo())
+                        .map(TeamPlayerInfo::getType).orElse(null))
+                .sportsId(Optional.ofNullable(productDto.getSportsInfo())
+                        .map(SportsInfo::getId).orElse(null))
+                .sportsName(Optional.ofNullable(productDto.getSportsInfo())
+                        .map(SportsInfo::getName).orElse(null))
+                .createdDateTime(productDto.getCreatedDateTime())
+                .updatedDateTime(productDto.getUpdatedDateTime())
+                .build();
+    }
 }

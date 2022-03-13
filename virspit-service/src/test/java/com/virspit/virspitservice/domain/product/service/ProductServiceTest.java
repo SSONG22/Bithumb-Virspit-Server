@@ -1,7 +1,10 @@
 package com.virspit.virspitservice.domain.product.service;
 
+import com.querydsl.core.types.Order;
+import com.querydsl.core.types.OrderSpecifier;
 import com.virspit.virspitservice.domain.product.dto.*;
 import com.virspit.virspitservice.domain.product.entity.ProductDoc;
+import com.virspit.virspitservice.domain.product.entity.QProductDoc;
 import com.virspit.virspitservice.domain.product.repository.ProductDocRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -19,6 +22,11 @@ import reactor.test.StepVerifier;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.function.Predicate;
+
+import static com.virspit.virspitservice.domain.product.entity.QProductDoc.productDoc;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 @DisplayName("서비스 유닛 테스트 (mock)")
 @ExtendWith(SpringExtension.class)
@@ -41,13 +49,13 @@ class ProductServiceTest {
             .nftInfo(new NftInfo("", ""))
             .price(1)
             .sportsInfo(new SportsInfo(1l, "name"))
-            .teamPlayerInfo(new TeamPlayerInfo(1l, "name","TEAM"))
+            .teamPlayerInfo(new TeamPlayerInfo(1l, "name", "TEAM"))
             .remainedCount(4)
             .startDateTime(LocalDateTime.now())
             .updatedDateTime(LocalDateTime.now())
             .createdDateTime(LocalDateTime.now())
             .build();
-    private ProductDoc product = ProductDoc.kafkaToEntity(kafkaDto);
+    private ProductDoc product = kafkaDto.kafkaToEntity(kafkaDto);
     private ProductDto dto = ProductDto.entityToDto(product);
     private ProductDoc product2 = ProductDoc.builder()
             .id("2")
@@ -55,22 +63,25 @@ class ProductServiceTest {
 
     @BeforeEach
     void setUp() {
-        BDDMockito.when(repositoryMock.findAll())
+        when(repositoryMock.findAll())
                 .thenReturn(Flux.just(product));
 
-        BDDMockito.when(repositoryMock.save(product))
+        when(repositoryMock.save(product))
                 .thenReturn(Mono.just(product));
 
-        BDDMockito.when(repositoryMock.findByTitleLikeOrderByCreatedDateDesc("product"))
+        when(repositoryMock.findByTitleLikeOrderByCreatedDateDesc("product"))
                 .thenReturn(Flux.just(product));
 
-        BDDMockito.when(repositoryMock.findAll(PageRequest.of(0, 4, Sort.by("createdDate").descending())))
+        when(repositoryMock.findAll(PageRequest.of(0, 4, Sort.by("createdDate").descending())))
                 .thenReturn(Flux.just(product));
 
-        BDDMockito.when(repositoryMock.count())
+        when(repositoryMock.findBySportsIdAndTeamPlayerTypeOrderByCreatedDateTimeDesc(1l, "TEAM"))
+        .thenReturn(Flux.just(product));
+
+        when(repositoryMock.count())
                 .thenReturn(Mono.just(20l));
 
-        BDDMockito.when(repositoryMock.findAllById(List.of("1","2")))
+        when(repositoryMock.findAllById(List.of("1", "2")))
                 .thenReturn(Flux.just(product, product2));
     }
 
@@ -106,7 +117,13 @@ class ProductServiceTest {
     @DisplayName("전체 상품 목록을 페이징 처리해서 가져온다.")
     @Test
     void getAllPaging() {
-        StepVerifier.create(productService.getAllProducts(PageRequest.of(0, 4, Sort.by("createdDate").descending()),"TEAM",1l))
+        when(
+                repositoryMock.findAll(productDoc.teamPlayerType.eq("TEAM"),
+                        productDoc.sportsId.eq(1l),
+                        new OrderSpecifier<>(Order.DESC, productDoc.createdDateTime))
+        ).thenReturn(Flux.just(product));
+
+        StepVerifier.create(productService.getAllProducts(PageRequest.of(0, 4, Sort.by("createdDate").descending()), "TEAM", 1l))
                 .expectSubscription()
                 .expectNextCount(1)
                 .verifyComplete();
@@ -114,8 +131,8 @@ class ProductServiceTest {
 
     @DisplayName("좋아요한 목록 Id 프로덕트 정보를 가져온다.")
     @Test
-    void getFavorites(){
-        StepVerifier.create(productService.getFavorites(List.of("1","2")))
+    void getFavorites() {
+        StepVerifier.create(productService.getFavorites(List.of("1", "2")))
                 .expectSubscription()
                 .expectNextCount(2)
                 .verifyComplete();

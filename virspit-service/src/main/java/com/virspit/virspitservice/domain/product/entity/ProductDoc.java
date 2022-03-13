@@ -1,19 +1,16 @@
 package com.virspit.virspitservice.domain.product.entity;
 
-import com.virspit.virspitservice.domain.product.dto.*;
-
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 @Getter
 @ToString
 @Builder
 @AllArgsConstructor
-@EqualsAndHashCode(of = "id")
+@EqualsAndHashCode
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Document(collection = "products")
 public class ProductDoc {
@@ -54,35 +51,6 @@ public class ProductDoc {
 
     private LocalDateTime updatedDateTime;
 
-    public static ProductDoc kafkaToEntity(final ProductKafkaDto productDto) {
-        return ProductDoc.builder()
-                .id(productDto.getId())
-                .title(productDto.getTitle())
-                .description(productDto.getDescription())
-                .price(productDto.getPrice())
-                .remainedCount(productDto.getRemainedCount())
-                .startDateTime(productDto.getStartDateTime())
-                .exhibition(productDto.getExhibition())
-                .nftImageUrl(productDto.getNftImageUrl())
-                .detailImageUrl(productDto.getDetailImageUrl())
-                .metadataUri(Optional.ofNullable(productDto.getNftInfo())
-                        .map(NftInfo::getMetadataUri).orElse(null))
-                .contractAlias(Optional.ofNullable(productDto.getNftInfo())
-                        .map(NftInfo::getContractAlias).orElse(null))
-                .teamPlayerId(Optional.ofNullable(productDto.getTeamPlayerInfo())
-                        .map(TeamPlayerInfo::getId).orElse(null))
-                .teamPlayerName(Optional.ofNullable(productDto.getTeamPlayerInfo())
-                        .map(TeamPlayerInfo::getName).orElse(null))
-                .teamPlayerType(Optional.ofNullable(productDto.getTeamPlayerInfo())
-                        .map(TeamPlayerInfo::getType).orElse(null))
-                .sportsId(Optional.ofNullable(productDto.getSportsInfo())
-                        .map(SportsInfo::getId).orElse(null))
-                .sportsName(Optional.ofNullable(productDto.getSportsInfo())
-                        .map(SportsInfo::getName).orElse(null))
-                .createdDateTime(productDto.getCreatedDateTime())
-                .updatedDateTime(productDto.getUpdatedDateTime())
-                .build();
-    }
 
     public void setId(final String id) {
         this.id = id;

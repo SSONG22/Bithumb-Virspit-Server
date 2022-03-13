@@ -1,10 +1,13 @@
 package com.virspit.virspitservice.domain.product.service;
 
+import com.querydsl.core.types.Order;
+import com.querydsl.core.types.OrderSpecifier;
 import com.virspit.virspitservice.domain.common.PageSupport;
 import com.virspit.virspitservice.domain.product.dto.ProductDto;
 import com.virspit.virspitservice.domain.product.dto.ProductKafkaDto;
 import com.virspit.virspitservice.domain.product.entity.ProductDoc;
 
+import com.virspit.virspitservice.domain.product.entity.QProductDoc;
 import com.virspit.virspitservice.domain.product.repository.ProductDocRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,41 +21,32 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.virspit.virspitservice.domain.product.entity.QProductDoc.productDoc;
+
 @Slf4j
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 @Service
 public class ProductService {
     private final ProductDocRepository productRepository;
 
     @Transactional
     public Mono<ProductDto> insert(ProductKafkaDto productDto) {
-        log.info("mongo db insert :{}", productDto);
-
-        Mono<ProductDto> result = productRepository.save(ProductDoc.kafkaToEntity(productDto))
+        Mono<ProductDto> result = productRepository.save(productDto.kafkaToEntity(productDto))
                 .map(ProductDto::entityToDto);
-        result.subscribe(p -> log.info("result {}", p));
         return result;
     }
 
-    @Transactional(readOnly = true)
     public Flux<ProductDto> getAllProducts() {
         return productRepository.findAll()
                 .map(ProductDto::entityToDto);
     }
 
-    @Transactional(readOnly = true)
     public Mono<PageSupport> getAllProducts(Pageable pageable, String type, Long sportsId) {
-        Flux<ProductDoc> result;
-        if ((type == null || type.isBlank()) && sportsId == null) {
-            result = productRepository.findAllByOrderByCreatedDateTimeDesc();
-        } else if (type != null && sportsId != null) {
-            result = productRepository.findBySportsIdAndTeamPlayerTypeOrderByCreatedDateTimeDesc(sportsId, type);
-        } else if (type == null) {
-            result = productRepository.findBySportsIdOrderByCreatedDateTimeDesc(sportsId);
-        } else {
-            result = productRepository.findByTeamPlayerTypeOrderByCreatedDateTimeDesc(type);
-        }
-        return result
+
+        return productRepository.findAll(productDoc.teamPlayerType.eq(type),
+                productDoc.sportsId.eq(sportsId),
+                new OrderSpecifier<>(Order.DESC, productDoc.createdDateTime))
                 .collectList()
                 .map(list -> new PageSupport<>(
                         list
@@ -64,13 +58,11 @@ public class ProductService {
                         pageable.getPageNumber(), pageable.getPageSize(), list.size()));
     }
 
-    @Transactional(readOnly = true)
     public Mono<ProductDto> getProduct(final String id) {
         return productRepository.findById(id)
                 .map(ProductDto::entityToDto);
     }
 
-    @Transactional(readOnly = true)
     public Flux<ProductDto> getProductsInPriceRange(final int minPrice, final int maxPrice) {
         return productRepository.findByPriceBetween(Range.closed(minPrice, maxPrice))
                 .map(ProductDto::entityToDto);
@@ -86,7 +78,6 @@ public class ProductService {
         return productRepository.deleteById(id);
     }
 
-    @Transactional(readOnly = true)
     public Flux<ProductDto> getFavorites(List<String> ids) {
         return productRepository.findAllById(ids)
                 .map(ProductDto::entityToDto);

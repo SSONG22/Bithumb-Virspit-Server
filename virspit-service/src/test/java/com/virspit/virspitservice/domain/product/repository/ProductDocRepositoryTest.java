@@ -11,6 +11,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Range;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
@@ -19,6 +20,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+@ActiveProfiles("test")
 @ExtendWith(SpringExtension.class)
 @DataMongoTest
 class ProductDocRepositoryTest {
@@ -54,7 +56,6 @@ class ProductDocRepositoryTest {
     void findByName() {
         // given
         ProductDoc saved = generateDocument("product01");
-
         // when, assert
         StepVerifier.create(repository.findByTitle(saved.getTitle()))
                 .expectNext(saved)

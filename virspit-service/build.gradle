@@ -2,6 +2,7 @@ plugins {
     id 'org.springframework.boot' version '2.5.4'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
     id 'java'
+    id 'com.ewerk.gradle.plugins.querydsl' version '1.0.10'
 }
 
 group = 'com.virspit'
@@ -34,6 +35,9 @@ dependencies {
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-mongodb-reactive'
     implementation group: 'org.mongodb', name: 'mongodb-driver-sync'
     implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+    // query dsl
+    implementation 'com.querydsl:querydsl-mongodb'
+    implementation 'com.querydsl:querydsl-apt'
     // react test
     testImplementation 'io.projectreactor:reactor-test'
     // kafka
@@ -60,4 +64,24 @@ dependencyManagement {
 
 test {
     useJUnitPlatform()
+}
+
+
+def querydslGeneratedDir = "$buildDir/generated/querydsl" as Object
+querydsl {
+    library = "com.querydsl:querydsl-apt"
+    springDataMongo = true
+    querydslSourcesDir = querydslGeneratedDir
+}
+
+sourceSets {
+    main.java.srcDir querydslGeneratedDir
+}
+
+configurations {
+    querydsl.extendsFrom compileClasspath
+}
+
+compileQuerydsl {
+    options.annotationProcessorPath = configurations.querydsl
 }

@@ -7,8 +7,13 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-@FeignClient(name = "wallet", url = "https://wallet-api.klaytnapi.com/v2/tx/fd-user/value", configuration = KasFeignConfig.class)
+@FeignClient(name = "wallet",
+        url = "https://wallet-api.klaytnapi.com/v2/tx/fd-user/value",
+        configuration = KasFeignConfig.class
+)
 public interface KasKlayFeignClient {
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    KasWalletKlayTransactionResponse deployKlayTransaction(@RequestBody KasWalletKlayTransactionRequest kasWalletKlayTransactionRequest);
+    KasWalletKlayTransactionResponse deployKlayTransaction(
+            @RequestBody KasWalletKlayTransactionRequest request
+    );
 }

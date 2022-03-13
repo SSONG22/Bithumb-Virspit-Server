@@ -26,7 +26,7 @@ public class ProductController {
     public Mono<PageSupport> getAll(@RequestParam("page") int page,
                                     @RequestParam("size") int size,
                                     @RequestParam(required = false, name = "teamPlayerType") String type,
-                                    @RequestParam(required = false, name = "sportsId")Long sportsId) {
+                                    @RequestParam(required = false, name = "sportsId") Long sportsId) {
         return productService.getAllProducts(PageRequest.of(page - 1, size, Sort.by("createdDate").descending()), type, sportsId);
     }
 
@@ -50,6 +50,7 @@ public class ProductController {
     }
 
     @DeleteMapping("/{id}")
-    public Mono<Void> delete(@PathVariable String id){ return productService.deleteProduct(id);
+    public Mono<Void> delete(@PathVariable String id) {
+        return productService.deleteProduct(id);
     }
 }

@@ -14,27 +14,27 @@ import xyz.groundx.caver_ext_kas.rest_client.io.swagger.client.api.wallet.model.
 import xyz.groundx.caver_ext_kas.rest_client.io.swagger.client.api.wallet.model.TransactionResult;
 import xyz.groundx.caver_ext_kas.rest_client.io.swagger.client.api.wallet.model.ValueTransferTransactionRequest;
 
-import javax.xml.bind.DatatypeConverter;
 import java.math.BigInteger;
 
 @Slf4j
 @RequiredArgsConstructor
 @Service
 public class NftService {
-    private final static String UNIT = "KLAY";
+
+    private static final String UNIT = "KLAY";
+    private static final String DEFAULT_VALUE = "0x";
+    private static final int RADIX = 10;
+
     private final CaverExtKAS caver;
 
     @Value("${kas.admin-wallet-address}")
     private String adminWalletAddress;
 
-
     public boolean payToAdminFeesByCustomer(int price, String memberWalletAddress) {
         try {
-            String value = caver.utils.convertToPeb(String.valueOf(price), UNIT);
-            BigInteger bi = new BigInteger(value, 10);
-            String priceValue = "0x" + bi.toString(16);
+            String priceValue = convert(price);
 
-            ValueTransferTransactionRequest request = new ValueTransferTransactionRequest();
+            ValueTransferTransactionRequest request = new ValueTransferTransactionRequest(); // kas sdk 사용
             request.setTo(adminWalletAddress);
             request.setFrom(memberWalletAddress);
             request.setValue(priceValue);
@@ -70,15 +70,15 @@ public class NftService {
     private boolean isCommitted(String transactionHashCode) throws ApiException {
         while (true) {
             TransactionReceipt res = caver.kas.wallet.getTransaction(transactionHashCode);
-            if ("Committed" .equals(res.getStatus())) {
+            if ("Committed".equals(res.getStatus())) {
                 return true;
-            } else if ("Pending" .equals(res.getStatus())) {
+            } else if ("Pending".equals(res.getStatus())) {
                 try {
                     Thread.sleep(500);
                 } catch (InterruptedException e) {
                     log.warn(e.getMessage());
                 }
-            } else if ("Submitted" .equals(res.getStatus())) {
+            } else if ("Submitted".equals(res.getStatus())) {
                 log.debug("Submitted");
             } else {
                 return false;
@@ -87,14 +87,17 @@ public class NftService {
     }
 
     public void rollBackSendKlay(Integer price, String memberWalletAddress) {
-        String value = caver.utils.convertToPeb(String.valueOf(price), UNIT);
-        BigInteger bi = new BigInteger(value, 10);
-        String priceValue = "0x" + bi.toString(16);
+        String priceValue = convert(price);
 
         ValueTransferTransactionRequest request = new ValueTransferTransactionRequest();
         request.setTo(memberWalletAddress);
         request.setFrom(adminWalletAddress);
         request.setValue(priceValue);
         request.setSubmit(true);
+    }
+
+    private String convert(int price) {
+        String value = caver.utils.convertToPeb(String.valueOf(price), UNIT);
+        return DEFAULT_VALUE + new BigInteger(value, RADIX).toString(16);
     }
 }

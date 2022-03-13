@@ -45,16 +45,13 @@ class ProductControllerTest {
     @Test
     void allProducts() {
         // given
-        ProductDto dto = ProductDto.builder()
-                .title(UUID.randomUUID().toString())
-                .remainedCount(5)
-                .createdDateTime(LocalDateTime.now())
-                .build();
-        Flux<ProductDto> productMono = Flux.just(dto);
-        Mono<PageSupport> result = Mono.just(new PageSupport(List.of(), 0 ,1,1));
+        Mono<PageSupport> result = Mono.just(new PageSupport(List.of(), 0, 1, 1));
 
         // when
-        when(service.getAllProducts(PageRequest.of(0, 1, Sort.by("createdDate").descending()), "TEAM", 1l)).thenReturn(result);
+        when(service.getAllProducts(
+                PageRequest.of(0, 1, Sort.by("createdDate").descending()),
+                "TEAM", 1l)
+        ).thenReturn(result);
 
         // assert
         client.get()

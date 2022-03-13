@@ -13,7 +13,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Repository
-public interface ProductDocRepository extends ReactiveMongoRepository<ProductDoc, String>, ReactiveQuerydslPredicateExecutor<ProductDoc> {
+public interface ProductDocRepository extends ReactiveMongoRepository<ProductDoc, String>,
+        ReactiveQuerydslPredicateExecutor<ProductDoc> {
 
     Mono<ProductDoc> findByTitle(String title);
 
@@ -28,13 +29,7 @@ public interface ProductDocRepository extends ReactiveMongoRepository<ProductDoc
 
     Flux<ProductDoc> findByPriceBetween(Range<Integer> priceRange);
 
-    Flux<ProductDoc> findAllByOrderByCreatedDateTimeDesc();
-
-    Flux<ProductDoc> findByTeamPlayerTypeOrderByCreatedDateTimeDesc(String teamPlayerType);
-
     Flux<ProductDoc> findBySportsIdAndTeamPlayerTypeOrderByCreatedDateTimeDesc(Long sportsId, String teamPlayerType);
-
-    Flux<ProductDoc> findBySportsIdOrderByCreatedDateTimeDesc(Long sportsId);
 
     Flux<ProductDoc> findAll(Predicate sportsType, Predicate sportsId, OrderSpecifier orderSpecifier);
 }

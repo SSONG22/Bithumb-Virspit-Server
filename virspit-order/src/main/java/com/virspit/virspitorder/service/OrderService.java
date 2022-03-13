@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Transactional
 @RequiredArgsConstructor
 @Service
 @Slf4j
@@ -39,11 +40,9 @@ public class OrderService {
     @Transactional(readOnly = true)
     public List<OrdersResponseDto> getAll(String startDate, String endDate, Pageable pageable) {
         StringUtils.validateInputDate(startDate, endDate);
-
         if (startDate != null) {
             return findAllByDate(startDate, endDate, pageable);
         }
-
         return findAll(pageable);
     }
 
@@ -80,6 +79,7 @@ public class OrderService {
                 .collect(Collectors.toList());
     }
 
+    // todo queryDSL
     @Transactional(readOnly = true)
     public List<OrdersResponseDto> getAllByMember(Long memberId, String startDate, String endDate, Pageable pageable) {
         StringUtils.validateInputDate(startDate, endDate);
@@ -113,7 +113,6 @@ public class OrderService {
                 .collect(Collectors.toList());
     }
 
-    @Transactional
     public OrdersResponseDto order(Long memberId, Long productId) throws ApiException {
         String memberWalletAddress = memberServiceFeignClient.findWalletByMemberId(memberId);
         if (memberWalletAddress.isBlank() || memberWalletAddress == null) {
@@ -149,7 +148,6 @@ public class OrderService {
         return dto;
     }
 
-    @Transactional
     public OrdersResponseDto updateMemo(OrderMemoRequestDto requestDto) {
         Orders orders = orderRepository.findById(requestDto.getOrderId())
                 .orElseThrow(() -> new BusinessException("해당 orderId가 없습니다.", ErrorCode.ENTITY_NOT_FOUND));

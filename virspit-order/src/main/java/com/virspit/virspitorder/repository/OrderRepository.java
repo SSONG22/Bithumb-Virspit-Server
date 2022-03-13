@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 
 @Repository
 public interface OrderRepository extends JpaRepository<Orders, Long> {
+    // todo change to queryDSL
     Page<Orders> findByOrderDateBetween(LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
 
     Page<Orders> findByMemberId(long memberId, Pageable pageable);

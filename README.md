@@ -1,6 +1,17 @@
 # Bithumb-Virspit-Server
 
 ![image](https://user-images.githubusercontent.com/61967790/135897254-5dd573b1-a5c1-4ce0-8a63-f7c5849327c0.png)
+
+
+## Architecture
+
+![image](https://user-images.githubusercontent.com/61967790/136833631-ba2a1b9f-65fb-4042-aa37-16adf8764c2c.png)
+
+
+
+
+---
+
 ## Commit Convention
    
           feat : 새로운 기능에 대한 커밋 
@@ -24,9 +35,3 @@
 
 
 ---
-
-## 서버 환경
-
-### spring eureka : 8761
-### spring cloud gateway : 8080
-### spring user : 8081

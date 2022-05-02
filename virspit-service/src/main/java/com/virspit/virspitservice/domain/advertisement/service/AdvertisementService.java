@@ -30,7 +30,8 @@ public class AdvertisementService {
     private Mono<ProductDoc> findProductById(String productId) {
         return productDocRepository.findById(productId)
                 .switchIfEmpty(
-                        Mono.error(new GlobalException(String.format("id: {%s} 에 해당하는 product 가 없습니다.", productId), ErrorCode.ENTITY_NOT_FOUND)));
+                        Mono.error(new GlobalException(String.format("id: {%s} 에 해당하는 product 가 없습니다.", productId),
+                                ErrorCode.ENTITY_NOT_FOUND)));
     }
 
     @Transactional
@@ -65,7 +66,11 @@ public class AdvertisementService {
 
     @Transactional(readOnly = true)
     public Mono<AdvertisementResponseDto> get(String id) {
+        System.out.println(id);
         return advertisementDocRepository.findById(id)
+                .switchIfEmpty(
+                        Mono.error(new GlobalException(String.format("id: {%s} 에 해당하는 광고가 없습니다.", id),
+                                ErrorCode.ENTITY_NOT_FOUND)))
                 .map(AdvertisementResponseDto::entityToDto);
     }
 

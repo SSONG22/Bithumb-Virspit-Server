@@ -5,6 +5,8 @@ import com.virspit.virspitservice.domain.advertisement.dto.request.Advertisement
 import com.virspit.virspitservice.domain.advertisement.dto.response.AdvertisementResponseDto;
 import com.virspit.virspitservice.domain.advertisement.entity.AdvertisementDoc;
 import com.virspit.virspitservice.domain.advertisement.service.AdvertisementService;
+import com.virspit.virspitservice.response.error.ErrorCode;
+import com.virspit.virspitservice.response.error.GlobalException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -118,6 +120,30 @@ class AdvertisementControllerTest {
                 .accept(MediaType.APPLICATION_JSON)
                 .exchange()
                 .expectStatus().isOk();
+    }
+
+    @DisplayName("광고 id 조회 ")
+    @Test
+    void get_error() {
+        // when
+        when(service.get(String.valueOf(1))).thenReturn(
+                Mono.error(new GlobalException(String.format("id: {%s} 에 해당하는 광고가 없습니다.", 1),
+                ErrorCode.ENTITY_NOT_FOUND)));
+
+        // assert
+        String result = client.get()
+                .uri(uriBuilder ->
+                        uriBuilder
+                                .path("/advertisements/1")
+                                .build()
+                )
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isBadRequest()
+                .expectBody()
+                .returnResult()
+                .toString();
+        System.out.println(result);
     }
 
     @DisplayName("광고 업데이트")
